@@ -14,6 +14,8 @@ import (
 	"github.com/gojektech/heimdall/httpclient"
 )
 
+var ErrPendingTransaction = errors.New("Transaction is pending")
+
 type Client struct {
 	BaseUrl            string
 	ClientId           string

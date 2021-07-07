@@ -7,10 +7,7 @@ import (
 )
 
 const (
-	TOKEN_PATH      = "/oauth/client_credential/accesstoken?grant_type=client_credentials"
-	VA_PATH         = "/v1/briva"
-	VA_REPORT_PATH  = "/v1/briva/report"
-	BRI_TIME_FORMAT = "2006-01-02T15:04:05.999Z"
+	VA_PATH      = "rest/merchantpg/sendinvoice"
 )
 
 // CoreGateway struct
@@ -18,7 +15,7 @@ type CoreGateway struct {
 	Client Client
 }
 
-// Call : base method to call Core API
+// Call : base method to call Espay
 func (gateway *CoreGateway) Call(method, path string, header map[string]string, body io.Reader, v interface{}, vErr interface{}) error {
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
@@ -29,18 +26,15 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 	return gateway.Client.Call(method, path, header, body, v, vErr)
 }
 
-func (gateway *CoreGateway) CreateVA(token string, req CreateVaRequest) (res VaResponse, err error) {
+func (gateway *CoreGateway) CreateVA(token string, req CreateVaRequest) (res InquiryRequest, err error) {
 	token = "Bearer " + token
 	method := "POST"
 	body, err := json.Marshal(req)
-	timestamp := getTimestamp(BRI_TIME_FORMAT)
-	signature := generateSignature(VA_PATH, method, token, timestamp, string(body), gateway.Client.ClientSecret)
+	//timestamp := getTimestamp(BRI_TIME_FORMAT)
+	//signature := generateSignature(VA_PATH, method, token, timestamp, string(body), gateway.Client.ClientSecret)
 
 	headers := map[string]string{
-		"Authorization": token,
-		"BRI-Timestamp": timestamp,
-		"BRI-Signature": signature,
-		"Content-Type":  "application/json",
+		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
 	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
@@ -50,4 +44,8 @@ func (gateway *CoreGateway) CreateVA(token string, req CreateVaRequest) (res VaR
 	}
 
 	return
+}
+
+func (gateway *CoreGateway) SendResponse() error{
+	return nil
 }

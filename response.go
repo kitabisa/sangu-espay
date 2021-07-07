@@ -17,7 +17,7 @@ type InquiryResponse struct {
 	ErrorCode string `json:"error_code" valid:"required"`
 	ErrorMessage         string `json:"error_msg" valid:"required"`
 	OrderId     string `json:"order_id"`
-	Amount     string `json:"amount"`
+	Amount     float64 `json:"amount"`
 	Ccy     string `json:"ccy" `
 	Description     string `json:"desc"`
 	TransactionDate     string `json:"trx_date" `
