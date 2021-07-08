@@ -26,12 +26,9 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 	return gateway.Client.Call(method, path, header, body, v, vErr)
 }
 
-func (gateway *CoreGateway) CreateVA(token string, req CreateVaRequest) (res InquiryRequest, err error) {
-	token = "Bearer " + token
+func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	method := "POST"
 	body, err := json.Marshal(req)
-	//timestamp := getTimestamp(BRI_TIME_FORMAT)
-	//signature := generateSignature(VA_PATH, method, token, timestamp, string(body), gateway.Client.ClientSecret)
 
 	headers := map[string]string{
 		"Content-Type":  "application/x-www-form-urlencoded",
@@ -46,6 +43,19 @@ func (gateway *CoreGateway) CreateVA(token string, req CreateVaRequest) (res Inq
 	return
 }
 
-func (gateway *CoreGateway) SendResponse() error{
-	return nil
+func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (res InquiryResponse, err error) {
+	method := "POST"
+	body, err := json.Marshal(inquiryRequest)
+
+	headers := map[string]string{
+		"Content-Type":  "application/x-www-form-urlencoded",
+	}
+
+	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
+
+	if err != nil {
+		return
+	}
+
+	return
 }

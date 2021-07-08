@@ -1,16 +1,16 @@
 package sangu_espay
 
 type CreateVaResponse struct {
-	RequuestUUID string `json:"rq_uuid" valid:"required"`
+	RequestUUID string `json:"rq_uuid" valid:"required"`
 	RequestDateTime         string `json:"rq_datetime" valid:"required"`
 	ErrorCode        string `json:"error_cd" valid:"required"`
 	ErrorMessage            string `json:"error_msg" valid:"required"`
-	VaNumber          string `json:"va_number" valid:"required"`
-	Expired     string `json:"expired" valid:"required"`
-	Description     string `json:"desc" valid:"required"`
-	TotalAmount     string `json:"total_amt" valid:"required"`
-	Amount     string `json:"amount" valid:"required"`
-	Fee     string `json:"fee" valid:"required"`
+	VaNumber          string `json:"va_number"`
+	Expired     string `json:"expired"`
+	Description     string `json:"desc"`
+	TotalAmount     string `json:"total_amt"`
+	Amount     string `json:"amount"`
+	Fee     string `json:"fee"`
 }
 
 type InquiryResponse struct {
