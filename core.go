@@ -1,13 +1,16 @@
 package sangu_espay
 
 import (
+	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strings"
 )
 
 const (
 	VA_PATH      = "rest/merchantpg/sendinvoice"
+	SIGNATURE_MODE_SEND_INVOICE = "SENDINVOICE"
 )
 
 // CoreGateway struct
@@ -26,7 +29,9 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 	return gateway.Client.Call(method, path, header, body, v, vErr)
 }
 
-func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
+func (gateway *CoreGateway) CreateVA(signatureKey string, req CreateVaRequest) (res CreateVaResponse, err error) {
+	signature := generateSignature(signatureKey, req)
+	req.Signature = fmt.Sprintf("%x", signature)
 	method := "POST"
 	body, err := json.Marshal(req)
 
@@ -41,6 +46,13 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 	}
 
 	return
+}
+
+func generateSignature(signatureKey string, req CreateVaRequest) []byte {
+	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + SIGNATURE_MODE_SEND_INVOICE
+	signatureUpperCase := strings.ToUpper(signature)
+	hash := sha256.Sum256([]byte(signatureUpperCase))
+	return hash[:]
 }
 
 func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (res InquiryResponse, err error) {

@@ -9,6 +9,7 @@ type CreateVaResponse struct {
 	Expired     string `json:"expired"`
 	Description     string `json:"desc"`
 	TotalAmount     string `json:"total_amt"`
+	BankCode 	string `json:"bank_code"`
 	Amount     string `json:"amount"`
 	Fee     string `json:"fee"`
 }
