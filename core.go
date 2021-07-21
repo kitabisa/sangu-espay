@@ -32,7 +32,6 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
-	fmt.Println("signature is ", req.Signature)
 	method := "POST"
 	body, err := json.Marshal(req)
 
@@ -41,6 +40,11 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 	}
 
 	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
+
+	if res.ErrorCode != "00" && res.ErrorMessage != "Success" {
+		fmt.Println("error during espay call. response : ", res)
+		return
+	}
 
 	if err != nil {
 		return
