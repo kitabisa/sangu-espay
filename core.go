@@ -39,7 +39,7 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	err = gateway.Call(method, fmt.Sprintf("%s%s", gateway.Client.BaseUrl, VA_PATH), headers, strings.NewReader(string(body)), &res, nil)
+	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
 
 	if err != nil {
 		return
