@@ -18,7 +18,6 @@ var ErrPendingTransaction = errors.New("Transaction is pending")
 
 type Client struct {
 	BaseUrl      string
-	CommonCode   string
 	SignatureKey string
 	LogLevel     int
 	Timeout      time.Duration
