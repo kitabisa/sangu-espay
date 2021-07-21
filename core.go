@@ -29,8 +29,8 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 	return gateway.Client.Call(method, path, header, body, v, vErr)
 }
 
-func (gateway *CoreGateway) CreateVA(signatureKey string, req CreateVaRequest) (res CreateVaResponse, err error) {
-	signature := generateSignature(signatureKey, req)
+func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
+	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
 	method := "POST"
 	body, err := json.Marshal(req)
@@ -39,7 +39,7 @@ func (gateway *CoreGateway) CreateVA(signatureKey string, req CreateVaRequest) (
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
+	err = gateway.Call(method, fmt.Sprintf("%s%s", gateway.Client.BaseUrl, VA_PATH), headers, strings.NewReader(string(body)), &res, nil)
 
 	if err != nil {
 		return
