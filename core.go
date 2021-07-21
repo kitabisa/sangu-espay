@@ -41,10 +41,9 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 
 	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
 
-	if res.ErrorCode != "00" && res.ErrorMessage != "Success" {
-		fmt.Println("error during espay call. response : ", res)
-		return
-	}
+	if res.ErrorCode == "00" && res.ErrorMessage == "Success" {
+		return res, nil
+	} 
 
 	if err != nil {
 		return
