@@ -26,7 +26,7 @@ func TestCoreGateway_CreateVA(t *testing.T) {
 					BaseUrl:      "https://espay",
 					ClientId:     "",
 					ClientSecret: "",
-					APIKey:       "",
+					SignatureKey: "",
 					LogLevel:     0,
 					Timeout:      0,
 					Logger:       nil,
