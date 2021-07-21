@@ -26,15 +26,13 @@ type Client struct {
 }
 
 // NewClient : this function will always be called when the library is in use
-func NewClient(baseUrl string, signatureKey string) Client {
+func NewClient() Client {
 	return Client{
 		// LogLevel is the logging level used by the BRI library
 		// 0: No logging
 		// 1: Errors only
 		// 2: Errors + informational (default)
 		// 3: Errors + informational + debug
-		BaseUrl: baseUrl,
-		SignatureKey: signatureKey,
 		LogLevel:     2,
 		Timeout:      3 * time.Minute,
 		Logger:       log.New(os.Stderr, "", log.LstdFlags),
