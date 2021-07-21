@@ -32,7 +32,7 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
-	fmt.Println("signature is ", signature)
+	fmt.Println("signature is ", req.Signature)
 	method := "POST"
 	body, err := json.Marshal(req)
 
@@ -50,7 +50,7 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 }
 
 func generateSignature(signatureKey string, req CreateVaRequest) []byte {
-	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + SIGNATURE_MODE_SEND_INVOICE
+	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + req.MerchantCode + "##" + SIGNATURE_MODE_SEND_INVOICE
 	signatureUpperCase := strings.ToUpper(signature)
 	hash := sha256.Sum256([]byte(signatureUpperCase))
 	return hash[:]
