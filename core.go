@@ -32,6 +32,7 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
+	fmt.Println("signature is ", signature)
 	method := "POST"
 	body, err := json.Marshal(req)
 

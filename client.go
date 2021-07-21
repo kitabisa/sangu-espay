@@ -33,8 +33,7 @@ func NewClient() Client {
 		// 1: Errors only
 		// 2: Errors + informational (default)
 		// 3: Errors + informational + debug
-		LogLevel:     2,
-		Timeout:      3 * time.Minute,
+		Timeout:      1 * time.Minute,
 		Logger:       log.New(os.Stderr, "", log.LstdFlags),
 		IsProduction: false,
 	}
@@ -146,9 +145,6 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 	return nil
 }
 
-// Call the BRI API at specific `path` using the specified HTTP `method`. The result will be
-// given to `v` if there is no error. If any error occurred, the return of this function is the error
-// itself, otherwise nil.
 func (c *Client) Call(method, path string, header map[string]string, body io.Reader, v interface{}, vErr interface{}) error {
 	req, err := c.NewRequest(method, path, header, body)
 
