@@ -50,7 +50,7 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 }
 
 func generateSignature(signatureKey string, req CreateVaRequest) []byte {
-	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + req.MerchantCode + "##" + SIGNATURE_MODE_SEND_INVOICE
+	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + req.MerchantCode + "##" + SIGNATURE_MODE_SEND_INVOICE + "##"
 	signatureUpperCase := strings.ToUpper(signature)
 	hash := sha256.Sum256([]byte(signatureUpperCase))
 	return hash[:]
