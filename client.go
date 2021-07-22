@@ -14,7 +14,6 @@ import (
 type Client struct {
 	BaseUrl      string
 	SignatureKey string
-	LogLevel     int
 	Timeout      time.Duration
 	Logger       Logger
 	IsProduction bool

@@ -35,9 +35,9 @@ func NewLogger(option LogOption) *Logger {
 	var logger zerolog.Logger
 
 	if option.Pretty {
-		logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
-	} else {
 		logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	} else {
+		logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 	}
 
 	return &Logger{
