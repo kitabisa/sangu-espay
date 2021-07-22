@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
+	"reflect"
 	"strings"
 )
 
@@ -29,17 +31,26 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 	return gateway.Client.Call(method, path, header, body, v, vErr)
 }
 
+func structToMap(i interface{}) (values url.Values) {
+	values = url.Values{}
+	iVal := reflect.ValueOf(i).Elem()
+	typ := iVal.Type()
+	for i := 0; i < iVal.NumField(); i++ {
+		values.Set(typ.Field(i).Tag.Get("json"), fmt.Sprint(iVal.Field(i)))
+	}
+	return
+}
+
 func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
+	body := structToMap(&req)
 	method := "POST"
-	body, err := json.Marshal(req)
-
 	headers := map[string]string{
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
+	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()), &res, nil)
 
 	if res.ErrorCode == "00" && res.ErrorMessage == "Success" {
 		return res, nil

@@ -13,6 +13,7 @@ import (
 
 	"github.com/gojektech/heimdall"
 	"github.com/gojektech/heimdall/httpclient"
+	"moul.io/http2curl"
 )
 
 var ErrPendingTransaction = errors.New("Transaction is pending")
@@ -121,8 +122,10 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 	if logLevel > 2 {
 		logger.Println("Espay HTTP status response: ", res.StatusCode)
 		logger.Println("Espay body response: ", string(resBody))
-		fmt.Println(fmt.Sprintf("TEST request & response : %v %v", req, res))
 	}
+
+	command, _ := http2curl.GetCurlCommand(req)
+	fmt.Println(command)
 
 	if res.StatusCode == 404 {
 		return errors.New("invalid url")
