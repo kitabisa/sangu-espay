@@ -3,6 +3,7 @@ package sangu_espay
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -88,6 +89,7 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 	}
 
 	start := time.Now()
+
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
 		if logLevel > 0 {
@@ -119,6 +121,7 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 	if logLevel > 2 {
 		logger.Println("Espay HTTP status response: ", res.StatusCode)
 		logger.Println("Espay body response: ", string(resBody))
+		fmt.Println(fmt.Sprintf("TEST request & response : %v %v", req, res))
 	}
 
 	if res.StatusCode == 404 {
