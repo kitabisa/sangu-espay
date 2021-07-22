@@ -52,12 +52,8 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 
 	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()), &res, nil)
 
-	if res.ErrorCode == "00" && res.ErrorMessage == "Success" {
-		return res, nil
-	} 
-
-	if err != nil {
-		return
+	if res.ErrorCode != "00" || err != nil{
+		return res, err
 	}
 
 	return
