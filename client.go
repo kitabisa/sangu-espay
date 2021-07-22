@@ -1,13 +1,9 @@
 package sangu_espay
 
 import (
-	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gojektech/heimdall"
@@ -15,19 +11,24 @@ import (
 	"moul.io/http2curl"
 )
 
-var ErrPendingTransaction = errors.New("Transaction is pending")
-
 type Client struct {
 	BaseUrl      string
 	SignatureKey string
 	LogLevel     int
 	Timeout      time.Duration
-	Logger       *log.Logger
+	Logger       Logger
 	IsProduction bool
 }
 
 // NewClient : this function will always be called when the library is in use
 func NewClient() Client {
+	logger := NewLogger(LogOption{
+		Format:          "json",
+		Level:           "2",
+		TimestampFormat: "2006-01-02T15:04:05-0700",
+		CallerToggle:    false,
+	})
+
 	return Client{
 		// LogLevel is the logging level used by the BRI library
 		// 0: No logging
@@ -35,7 +36,7 @@ func NewClient() Client {
 		// 2: Errors + informational (default)
 		// 3: Errors + informational + debug
 		Timeout:      1 * time.Minute,
-		Logger:       log.New(os.Stderr, "", log.LstdFlags),
+		Logger:       *logger,
 		IsProduction: false,
 	}
 }
@@ -59,14 +60,11 @@ func (c *Client) getHTTPClient() *httpclient.Client {
 
 // NewRequest : send new request
 func (c *Client) NewRequest(method string, fullPath string, headers map[string]string, body io.Reader) (*http.Request, error) {
-	logLevel := c.LogLevel
-	logger := c.Logger
+	log := c.Logger
 
 	req, err := http.NewRequest(method, fullPath, body)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Request creation failed: ", err)
-		}
+		log.Error("Error during NewRequest", err)
 		return nil, err
 	}
 
@@ -81,50 +79,27 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 
 // ExecuteRequest : execute request
 func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
-	logLevel := c.LogLevel
-	logger := c.Logger
-
-	if logLevel > 1 {
-		logger.Println("Request ", req.Method, ": ", req.URL.Host, req.URL.Path)
-	}
 
 	start := time.Now()
-
+	command, _ := http2curl.GetCurlCommand(req)
+	c.Logger.Info("Curl Request: ", command)
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Cannot send request: ", err)
-		}
+		c.Logger.Error("Request failed. Error : ", err)
 		return nil, err
 	}
 	defer res.Body.Close()
+	c.Logger.Info("Completed in ", time.Since(start))
 
-	if logLevel > 2 {
-		logger.Println("Completed in ", time.Since(start))
-	}
-
-	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Request failed: ", err)
-		}
-		return nil, err
-	}
 
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Cannot read response body: ", err)
-		}
+		c.Logger.Error("Cannot read response body: ", err)
 		return resBody, err
 	}
 
-	if logLevel > 2 {
-		logger.Println("Espay HTTP status response: ", res.StatusCode)
-		logger.Println("Espay body response: ", string(resBody))
-	}
-
-	command, _ := http2curl.GetCurlCommand(req)
-	fmt.Println(command)
+	c.Logger.Info("Espay HTTP status response : ", res.StatusCode)
+	c.Logger.Info("Espay response body : ", string(resBody))
 
 	return resBody, err
 }
@@ -133,6 +108,7 @@ func (c *Client) Call(method, path string, header map[string]string, body io.Rea
 	req, err := c.NewRequest(method, path, header, body)
 
 	if err != nil {
+		c.Logger.Info("Failed during NewRequest ", err)
 		return nil, err
 	}
 

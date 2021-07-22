@@ -54,11 +54,13 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 	var responseBody []byte
 	responseBody, err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()))
 	if err != nil {
+		gateway.Client.Logger.Error("Error during gateway.Call. Error : ", err)
 		return
 	}
 
 	err = json.Unmarshal(responseBody, &res)
 	if err != nil || res.ErrorCode != "00" {
+		gateway.Client.Logger.Error("Error response error code is not equal to 00 or common error occurred : ", err)
 		return CreateVaResponse{}, errors.New(res.ErrorMessage)
 	}
 
