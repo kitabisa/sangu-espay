@@ -24,7 +24,7 @@ type Client struct {
 func NewClient() Client {
 	logger := NewLogger(LogOption{
 		Format:          "json",
-		Level:           "2",
+		Level:           "info",
 		TimestampFormat: "2006-01-02T15:04:05-0700",
 		CallerToggle:    false,
 	})
@@ -64,7 +64,7 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 
 	req, err := http.NewRequest(method, fullPath, body)
 	if err != nil {
-		log.Error("Error during NewRequest", err)
+		log.Error("Error during NewRequest %v", err)
 		return nil, err
 	}
 
@@ -82,24 +82,24 @@ func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 
 	start := time.Now()
 	command, _ := http2curl.GetCurlCommand(req)
-	c.Logger.Info("Curl Request: ", command)
+	c.Logger.Info("Curl Request: %v ", command)
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
-		c.Logger.Error("Request failed. Error : ", err)
+		c.Logger.Error("Request failed. Error : %v ", err)
 		return nil, err
 	}
 	defer res.Body.Close()
-	c.Logger.Info("Completed in ", time.Since(start))
+	c.Logger.Info("Completed in %d", time.Since(start))
 
 
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		c.Logger.Error("Cannot read response body: ", err)
+		c.Logger.Error("Cannot read response body: %v ", err)
 		return resBody, err
 	}
 
-	c.Logger.Info("Espay HTTP status response : ", res.StatusCode)
-	c.Logger.Info("Espay response body : ", string(resBody))
+	c.Logger.Info("Espay HTTP status response : %d", res.StatusCode)
+	c.Logger.Info("Espay response body : %s", string(resBody))
 
 	return resBody, err
 }
@@ -108,7 +108,7 @@ func (c *Client) Call(method, path string, header map[string]string, body io.Rea
 	req, err := c.NewRequest(method, path, header, body)
 
 	if err != nil {
-		c.Logger.Info("Failed during NewRequest ", err)
+		c.Logger.Info("Failed during NewRequest %v", err)
 		return nil, err
 	}
 
