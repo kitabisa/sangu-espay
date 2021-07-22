@@ -58,11 +58,11 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 	}
 
 	err = json.Unmarshal(responseBody, &res)
-	if err != nil {
+	if err != nil || res.ErrorCode != "00" {
 		return CreateVaResponse{}, errors.New(res.ErrorMessage)
 	}
 
-	return 
+	return
 }
 
 func generateSignature(signatureKey string, req CreateVaRequest) []byte {
