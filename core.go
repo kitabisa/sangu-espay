@@ -42,7 +42,7 @@ func structToMap(i interface{}) (values url.Values) {
 	return
 }
 
-func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (err error) {
+func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
 	body := structToMap(&req)
@@ -51,19 +51,18 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (err error) {
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	var res CreateVaResponse
 	var responseBody []byte
 	responseBody, err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()))
 	if err != nil {
-		return err
+		return
 	}
 
 	err = json.Unmarshal(responseBody, &res)
 	if err != nil {
-		return errors.New(res.ErrorMessage)
+		return CreateVaResponse{}, errors.New(res.ErrorMessage)
 	}
 
-	return
+	return 
 }
 
 func generateSignature(signatureKey string, req CreateVaRequest) []byte {
