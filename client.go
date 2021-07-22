@@ -21,23 +21,27 @@ type Client struct {
 }
 
 // NewClient : this function will always be called when the library is in use
-func NewClient() Client {
-	logger := NewLogger(LogOption{
-		Format:          "json",
+func NewClient(isProd bool) Client {
+
+	logOption := LogOption{
+		Format:          "text",
 		Level:           "info",
 		TimestampFormat: "2006-01-02T15:04:05-0700",
 		CallerToggle:    false,
-	})
+	}
+
+	if isProd {
+		logOption.Pretty = false
+	} else {
+		logOption.Pretty = true
+	}
+
+	logger := NewLogger(logOption)
 
 	return Client{
-		// LogLevel is the logging level used by the BRI library
-		// 0: No logging
-		// 1: Errors only
-		// 2: Errors + informational (default)
-		// 3: Errors + informational + debug
 		Timeout:      1 * time.Minute,
 		Logger:       *logger,
-		IsProduction: false,
+		IsProduction: isProd,
 	}
 }
 

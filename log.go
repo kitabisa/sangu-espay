@@ -17,6 +17,7 @@ type LogOption struct {
 	Level           string
 	TimestampFormat string
 	CallerToggle    bool
+	Pretty			bool
 }
 
 type Logger struct {
@@ -31,7 +32,13 @@ func NewLogger(option LogOption) *Logger {
 	setLogLevel(option.Level)
 	setTimeFormat(option.TimestampFormat)
 
-	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	var logger zerolog.Logger
+
+	if option.Pretty {
+		logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
+	} else {
+		logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
 
 	return &Logger{
 		logger:    &logger,
