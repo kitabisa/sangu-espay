@@ -1,7 +1,6 @@
 package sangu_espay
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -81,7 +80,7 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 }
 
 // ExecuteRequest : execute request
-func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface{}) error {
+func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 	logLevel := c.LogLevel
 	logger := c.Logger
 
@@ -96,7 +95,7 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 		if logLevel > 0 {
 			logger.Println("Cannot send request: ", err)
 		}
-		return err
+		return nil, err
 	}
 	defer res.Body.Close()
 
@@ -108,7 +107,7 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 		if logLevel > 0 {
 			logger.Println("Request failed: ", err)
 		}
-		return err
+		return nil, err
 	}
 
 	resBody, err := ioutil.ReadAll(res.Body)
@@ -116,7 +115,7 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 		if logLevel > 0 {
 			logger.Println("Cannot read response body: ", err)
 		}
-		return err
+		return resBody, err
 	}
 
 	if logLevel > 2 {
@@ -127,38 +126,17 @@ func (c *Client) ExecuteRequest(req *http.Request, v interface{}, vErr interface
 	command, _ := http2curl.GetCurlCommand(req)
 	fmt.Println(command)
 
-	if res.StatusCode == 404 {
-		return errors.New("invalid url")
-	}
-
-	if res.StatusCode == 204 {
-		return errors.New("204: empty response")
-	}
-
-	if v != nil {
-		if err = json.Unmarshal(resBody, v); err != nil {
-			if vErr != nil {
-				err = json.Unmarshal(resBody, &vErr)
-			}
-
-			if res.StatusCode == http.StatusOK {
-				return nil
-			}
-			return err
-		}
-	}
-
-	return nil
+	return resBody, err
 }
 
-func (c *Client) Call(method, path string, header map[string]string, body io.Reader, v interface{}, vErr interface{}) error {
+func (c *Client) Call(method, path string, header map[string]string, body io.Reader) ([]byte, error) {
 	req, err := c.NewRequest(method, path, header, body)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return c.ExecuteRequest(req, v, vErr)
+	return c.ExecuteRequest(req)
 }
 
 // ===================== END HTTP CLIENT ================================================

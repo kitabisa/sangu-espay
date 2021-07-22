@@ -3,6 +3,7 @@ package sangu_espay
 import (
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -21,14 +22,14 @@ type CoreGateway struct {
 }
 
 // Call : base method to call Espay
-func (gateway *CoreGateway) Call(method, path string, header map[string]string, body io.Reader, v interface{}, vErr interface{}) error {
+func (gateway *CoreGateway) Call(method, path string, header map[string]string, body io.Reader) ([]byte, error) {
 	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
 
 	path = gateway.Client.BaseUrl + path
 
-	return gateway.Client.Call(method, path, header, body, v, vErr)
+	return gateway.Client.Call(method, path, header, body)
 }
 
 func structToMap(i interface{}) (values url.Values) {
@@ -41,7 +42,7 @@ func structToMap(i interface{}) (values url.Values) {
 	return
 }
 
-func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
+func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (err error) {
 	signature := generateSignature(gateway.Client.SignatureKey, req)
 	req.Signature = fmt.Sprintf("%x", signature)
 	body := structToMap(&req)
@@ -50,10 +51,16 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()), &res, nil)
+	var res CreateVaResponse
+	var responseBody []byte
+	responseBody, err = gateway.Call(method, VA_PATH, headers, strings.NewReader(body.Encode()))
+	if err != nil {
+		return err
+	}
 
-	if res.ErrorCode != "00" || err != nil{
-		return res, err
+	err = json.Unmarshal(responseBody, &res)
+	if err != nil {
+		return errors.New(res.ErrorMessage)
 	}
 
 	return
@@ -66,7 +73,7 @@ func generateSignature(signatureKey string, req CreateVaRequest) []byte {
 	return hash[:]
 }
 
-func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (res InquiryResponse, err error) {
+func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (err error) {
 	method := "POST"
 	body, err := json.Marshal(inquiryRequest)
 
@@ -74,10 +81,17 @@ func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (
 		"Content-Type":  "application/x-www-form-urlencoded",
 	}
 
-	err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)), &res, nil)
+	var responseBody []byte
+	responseBody, err = gateway.Call(method, VA_PATH, headers, strings.NewReader(string(body)))
 
 	if err != nil {
-		return
+		return err
+	}
+
+	var res InquiryResponse
+	err = json.Unmarshal(responseBody, &res)
+	if err != nil {
+		return errors.New(res.ErrorMessage)
 	}
 
 	return
