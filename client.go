@@ -94,7 +94,6 @@ func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 	defer res.Body.Close()
 	c.Logger.Info("Completed in %d", time.Since(start))
 
-
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		c.Logger.Error("Cannot read response body: %v ", err)

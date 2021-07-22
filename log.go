@@ -3,21 +3,32 @@ package sangu_espay
 import (
 	"context"
 	"fmt"
-	"github.com/kitabisa/sangu/constants"
 	"os"
 	"runtime"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog"
 )
 
+const (
+	APPLICATION_NAME = "sangu-espay"
+	LOG_KEY_REQ_ID   = "req_id"
+	LOG_KEY_METHOD   = "method"
+	LOG_KEY_CALLER   = "caller"
+	LOG_LEVEL_TRACE  = "trace"
+	LOG_LEVEL_DEBUG  = "debug"
+	LOG_LEVEL_INFO   = "info"
+	LOG_LEVEL_WARN   = "warn"
+	LOG_LEVEL_ERROR  = "error"
+)
 
 type LogOption struct {
 	Format          string
 	Level           string
 	TimestampFormat string
 	CallerToggle    bool
-	Pretty			bool
+	Pretty          bool
 }
 
 type Logger struct {
@@ -35,7 +46,7 @@ func NewLogger(option LogOption) *Logger {
 	var logger zerolog.Logger
 
 	if option.Pretty {
-		logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+		logger = logger.Output(zerolog.ConsoleWriter{Out: os.Stderr, FormatTimestamp: func(i interface{}) string { return time.Now().Format(option.TimestampFormat) }})
 	} else {
 		logger = zerolog.New(os.Stderr).With().Timestamp().Logger()
 	}
@@ -62,23 +73,23 @@ func (l *Logger) Str(key string, val string) *Logger {
 }
 
 func (l *Logger) Trace(format string, v ...interface{}) {
-	l.logEvent(constants.LOG_LEVEL_TRACE).withCtx().withCaller().withMethod().msgf(format, v...)
+	l.logEvent(LOG_LEVEL_TRACE).withCtx().withCaller().withMethod().msgf(format, v...)
 }
 
 func (l *Logger) Debug(format string, v ...interface{}) {
-	l.logEvent(constants.LOG_LEVEL_DEBUG).withCtx().withCaller().withMethod().msgf(format, v...)
+	l.logEvent(LOG_LEVEL_DEBUG).withCtx().withCaller().withMethod().msgf(format, v...)
 }
 
 func (l *Logger) Info(format string, v ...interface{}) {
-	l.logEvent(constants.LOG_LEVEL_INFO).withCtx().withMethod().msgf(format, v...)
+	l.logEvent(LOG_LEVEL_INFO).withCtx().withMethod().msgf(format, v...)
 }
 
 func (l *Logger) Warn(format string, v ...interface{}) {
-	l.logEvent(constants.LOG_LEVEL_WARN).withCtx().withCaller().withMethod().msgf(format, v...)
+	l.logEvent(LOG_LEVEL_WARN).withCtx().withCaller().withMethod().msgf(format, v...)
 }
 
 func (l *Logger) Error(format string, v ...interface{}) {
-	l.logEvent(constants.LOG_LEVEL_ERROR).withCtx().withCaller().withMethod().msgf(format, v...)
+	l.logEvent(LOG_LEVEL_ERROR).withCtx().withCaller().withMethod().msgf(format, v...)
 }
 
 func (l *Logger) msgf(format string, v ...interface{}) {
@@ -90,12 +101,12 @@ func (l *Logger) withCtx() *Logger {
 		return l
 	}
 
-	reqID, ok := l.ctx.Value(constants.LOG_KEY_REQ_ID).(string)
+	reqID, ok := l.ctx.Value(LOG_KEY_REQ_ID).(string)
 	if !ok {
 		return l
 	}
 
-	l.event = l.event.Str(constants.LOG_KEY_REQ_ID, reqID)
+	l.event = l.event.Str(LOG_KEY_REQ_ID, reqID)
 	return l
 }
 
@@ -104,7 +115,7 @@ func (l *Logger) withMethod() *Logger {
 		return l
 	}
 
-	l.event = l.event.Str(constants.LOG_KEY_METHOD, l.method)
+	l.event = l.event.Str(LOG_KEY_METHOD, l.method)
 	return l
 }
 
@@ -119,28 +130,28 @@ func (l *Logger) withCaller() *Logger {
 		return l
 	}
 
-	fileparts := strings.Split(file, constants.APPLICATION_NAME)
-	shortname := fmt.Sprintf("%s%s", constants.APPLICATION_NAME, fileparts[len(fileparts)-1])
+	fileparts := strings.Split(file, APPLICATION_NAME)
+	shortname := fmt.Sprintf("%s%s", APPLICATION_NAME, fileparts[len(fileparts)-1])
 
-	l.event = l.event.Str(constants.LOG_KEY_CALLER, fmt.Sprintf("%s:%d", shortname, line))
+	l.event = l.event.Str(LOG_KEY_CALLER, fmt.Sprintf("%s:%d", shortname, line))
 	return l
 }
 
 func (l *Logger) logEvent(level string) *Logger {
 	switch level {
-	case constants.LOG_LEVEL_TRACE:
+	case LOG_LEVEL_TRACE:
 		l.event = l.logger.Trace()
 		return l
-	case constants.LOG_LEVEL_DEBUG:
+	case LOG_LEVEL_DEBUG:
 		l.event = l.logger.Debug()
 		return l
-	case constants.LOG_LEVEL_INFO:
+	case LOG_LEVEL_INFO:
 		l.event = l.logger.Info()
 		return l
-	case constants.LOG_LEVEL_WARN:
+	case LOG_LEVEL_WARN:
 		l.event = l.logger.Warn()
 		return l
-	case constants.LOG_LEVEL_ERROR:
+	case LOG_LEVEL_ERROR:
 		l.event = l.logger.Error()
 		return l
 	default:
@@ -151,15 +162,15 @@ func (l *Logger) logEvent(level string) *Logger {
 
 func setLogLevel(level string) {
 	switch level {
-	case constants.LOG_LEVEL_TRACE:
+	case LOG_LEVEL_TRACE:
 		zerolog.SetGlobalLevel(zerolog.TraceLevel)
-	case constants.LOG_LEVEL_DEBUG:
+	case LOG_LEVEL_DEBUG:
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	case constants.LOG_LEVEL_INFO:
+	case LOG_LEVEL_INFO:
 		zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	case constants.LOG_LEVEL_WARN:
+	case LOG_LEVEL_WARN:
 		zerolog.SetGlobalLevel(zerolog.WarnLevel)
-	case constants.LOG_LEVEL_ERROR:
+	case LOG_LEVEL_ERROR:
 		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
 	default:
 		zerolog.SetGlobalLevel(zerolog.WarnLevel)
