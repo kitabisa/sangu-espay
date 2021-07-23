@@ -83,8 +83,8 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 // ExecuteRequest : execute request
 func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 
-	start := time.Now()
 	command, _ := http2curl.GetCurlCommand(req)
+	start := time.Now()
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
 		c.Logger.Error("Request failed. Error : %v , Curl Request : %v", err, command)
