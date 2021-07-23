@@ -74,9 +74,9 @@ func generateSignature(signatureKey string, req CreateVaRequest) []byte {
 	return hash[:]
 }
 
-func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (err error) {
+func (gateway *CoreGateway) SendInquiryResponse(res InquiryResponse) (err error) {
 	method := "POST"
-	body, err := json.Marshal(inquiryRequest)
+	body, err := json.Marshal(res)
 
 	headers := map[string]string{
 		"Content-Type":  "application/x-www-form-urlencoded",
@@ -89,7 +89,6 @@ func (gateway *CoreGateway) SendInquiryResponse(inquiryRequest InquiryRequest) (
 		return err
 	}
 
-	var res InquiryResponse
 	err = json.Unmarshal(responseBody, &res)
 	if err != nil {
 		return errors.New(res.ErrorMessage)

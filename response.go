@@ -15,11 +15,34 @@ type CreateVaResponse struct {
 }
 
 type InquiryResponse struct {
+	RequestUUID     string `json:"rq_uuid" valid:"required"`
+	RequestDateTime string `json:"rq_datetime" valid:"required"`
 	ErrorCode       string  `json:"error_code" valid:"required"`
 	ErrorMessage    string  `json:"error_message" valid:"required"`
+	Signature    string  `json:"signature" valid:"required"`
 	OrderId         string  `json:"order_id"`
 	Amount          float64 `json:"amount"`
 	Ccy             string  `json:"ccy" `
 	Description     string  `json:"desc"`
-	TransactionDate string  `json:"trx_date" `
+	TransactionDate string  `json:"trx_date"`
+	InstallmentPeriod string `json:"installment_period"`
+	CustomerDetails CustomerDetails
+	ShippingAddress ShippingAddress
+}
+
+type CustomerDetails struct {
+	FirstName string `json:"firstname" valid:"required"`
+	LastName string `json:"lastname"`
+	Phone string `json:"phone_number" valid:"required"`
+	Email string `json:"email" valid:"required"`
+}
+
+type ShippingAddress struct {
+	FirstName string `json:"firstname" valid:"required"`
+	LastName string `json:"lastname"`
+	Address string `json:"address" valid:"required"`
+	City string `json:"city" valid:"required"`
+	PostalCode string `json:"postal_code" valid:"required"`
+	Phone string `json:"phone_number" valid:"required"`
+	CountryCode string `json:"country_code"  valid:"required"`
 }
