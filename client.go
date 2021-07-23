@@ -85,12 +85,16 @@ func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 
 	start := time.Now()
 	command, _ := http2curl.GetCurlCommand(req)
-	c.Logger.Info("Curl Request: %v ", command)
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
-		c.Logger.Error("Request failed. Error : %v ", err)
+		c.Logger.Error("Request failed. Error : %v , Curl Request : %v", err, command)
 		return nil, err
 	}
+
+	if !c.IsProduction {
+		c.Logger.Info("Curl Request: %v ", command)
+	}
+
 	defer res.Body.Close()
 	c.Logger.Info("Completed in %d", time.Since(start))
 
