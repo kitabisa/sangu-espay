@@ -1,7 +1,9 @@
 package sangu_espay
 
+import "net/url"
+
 type CreateVaRequest struct {
-	RequuestUUID    string `json:"rq_uuid" valid:"required"`
+	RequestUUID     string `json:"rq_uuid" valid:"required"`
 	RequestDateTime string `json:"rq_datetime" valid:"required"`
 	OrderId         string `json:"order_id" valid:"required"`
 	Amount          string `json:"amount" valid:"required"`
@@ -48,4 +50,50 @@ type PaymentNotificationRequest struct {
 	PaymentRef                 string `json:"payment_ref" valid:"required"`
 	ApprovalCodeFullBca        string `json:"approval_code_full_bca"`
 	ApprovalCodeInstallmentBca string `json:"approval_code_installment_bca"`
+}
+
+func createVaRequestBody(req CreateVaRequest) (values url.Values) {
+	values = url.Values{}
+	values.Set("rq_uuid",req.RequestUUID)
+	values.Set("rq_datetime",req.RequestDateTime)
+	values.Set("order_id",req.OrderId)
+	values.Set("amount",req.Amount)
+	values.Set("ccy",req.Ccy)
+	values.Set("comm_code",req.MerchantCode)
+	values.Set("remark1",req.Remark1)
+	values.Set("remark2",req.Remark2)
+	values.Set("remark3",req.Remark3)
+	values.Set("update",req.Update)
+	values.Set("bank_code",req.BankCode)
+	values.Set("va_expired",req.VaExpired)
+	values.Set("signature",req.Signature)
+	return
+}
+
+
+func createInquiryResponseBody(req InquiryResponse) (values url.Values) {
+	values = url.Values{}
+	values.Set("rq_uuid",req.RequestUUID)
+	values.Set("rq_datetime",req.RequestDateTime)
+	values.Set("error_code",req.ErrorCode)
+	values.Set("error_message",req.ErrorMessage)
+	values.Set("signature",req.Signature)
+	values.Set("order_id",req.OrderId)
+	values.Set("amount",req.Amount)
+	values.Set("ccy",req.Ccy)
+	values.Set("description",req.Description)
+	values.Set("trx_date",req.TransactionDate)
+	values.Set("installment_period",req.InstallmentPeriod)
+	values.Set("customer_details.firstname",req.CustomerDetails.FirstName)
+	values.Set("customer_details.lastname",req.CustomerDetails.LastName)
+	values.Set("customer_details.phone_number",req.CustomerDetails.Phone)
+	values.Set("customer_details.email",req.CustomerDetails.Email)
+	values.Set("shipping_address.first_name",req.ShippingAddress.FirstName)
+	values.Set("shipping_address.lastname",req.ShippingAddress.LastName)
+	values.Set("shipping_address.address",req.ShippingAddress.Address)
+	values.Set("shipping_address.city",req.ShippingAddress.City)
+	values.Set("shipping_address.postal_code",req.ShippingAddress.PostalCode)
+	values.Set("shipping_address.phone",req.ShippingAddress.Phone)
+	values.Set("shipping_address.country_code",req.ShippingAddress.CountryCode)
+	return
 }
