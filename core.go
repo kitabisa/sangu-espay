@@ -42,9 +42,9 @@ func structToMap(i interface{}) (values url.Values) {
 	return
 }
 
+
 func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse, err error) {
-	signature := generateSignature(gateway.Client.SignatureKey, req)
-	req.Signature = fmt.Sprintf("%x", signature)
+	req.Signature = gateway.GenerateSignature(req.RequuestUUID, req.RequestDateTime, req.OrderId, req.Amount, req.Ccy, req.MerchantCode)
 	body := structToMap(&req)
 	method := "POST"
 	headers := map[string]string{
@@ -67,11 +67,11 @@ func (gateway *CoreGateway) CreateVA(req CreateVaRequest) (res CreateVaResponse,
 	return
 }
 
-func generateSignature(signatureKey string, req CreateVaRequest) []byte {
-	signature := "##" + signatureKey + "##" + req.RequuestUUID + "##" + req.RequestDateTime + "##" + req.OrderId + "##" + req.Amount + "##" + req.Ccy + "##" + req.MerchantCode + "##" + SIGNATURE_MODE_SEND_INVOICE + "##"
+func (gateway *CoreGateway) GenerateSignature(requuestUUID string, requestDateTime string, orderId string, amount string, currency string, merchantCode string) (signatureAsString string) {
+	signature := "##" + gateway.Client.SignatureKey + "##" + requuestUUID +  "##" + requestDateTime +  "##" + orderId +  "##" + amount +  "##" + currency +  "##" + merchantCode +  "##" + SIGNATURE_MODE_SEND_INVOICE +  "##"
 	signatureUpperCase := strings.ToUpper(signature)
 	hash := sha256.Sum256([]byte(signatureUpperCase))
-	return hash[:]
+	return fmt.Sprintf("%x", hash[:])
 }
 
 func (gateway *CoreGateway) SendInquiryResponse(res InquiryResponse) (err error) {
