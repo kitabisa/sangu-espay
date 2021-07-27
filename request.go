@@ -39,13 +39,13 @@ type CreateVaRequest struct {
 }
 
 type InquiryRequest struct {
-	RequestUUID     string `json:"rq_uuid" valid:"required"`
-	RequestDateTime string `json:"rq_datetime" valid:"required"`
-	MemberId        string `json:"member_id"`
-	MerchantCode    string `json:"comm_code" valid:"required"`
-	OrderId         string `json:"order_id" valid:"required"`
-	Password        string `json:"password"`
-	Signature       string `json:"signature" valid:"required"`
+	RequestUUID     string `schema:"rq_uuid, required"`
+	RequestDateTime string `schema:"rq_datetime, required"`
+	MemberId        string `schema:"member_id"`
+	MerchantCode    string `schema:"comm_code, required"`
+	OrderId         string `schema:"order_id, required"`
+	Password        string `schema:"password"`
+	Signature       string `schema:"signature, required"`
 }
 
 type PaymentNotificationRequest struct {
