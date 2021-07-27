@@ -5,19 +5,19 @@ import "net/url"
 // createVaRequestBody Modify CreateVaRequest when  you change this struct
 func createVaRequestBody(req CreateVaRequest) (values url.Values) {
 	values = url.Values{}
-	values.Set("rq_uuid",req.RequestUUID)
-	values.Set("rq_datetime",req.RequestDateTime)
-	values.Set("order_id",req.OrderId)
-	values.Set("amount",req.Amount)
-	values.Set("ccy",req.Ccy)
-	values.Set("comm_code",req.MerchantCode)
-	values.Set("remark1",req.Remark1)
-	values.Set("remark2",req.Remark2)
-	values.Set("remark3",req.Remark3)
-	values.Set("update",req.Update)
-	values.Set("bank_code",req.BankCode)
-	values.Set("va_expired",req.VaExpired)
-	values.Set("signature",req.Signature)
+	values.Set("rq_uuid", req.RequestUUID)
+	values.Set("rq_datetime", req.RequestDateTime)
+	values.Set("order_id", req.OrderId)
+	values.Set("amount", req.Amount)
+	values.Set("ccy", req.Ccy)
+	values.Set("comm_code", req.MerchantCode)
+	values.Set("remark1", req.Remark1)
+	values.Set("remark2", req.Remark2)
+	values.Set("remark3", req.Remark3)
+	values.Set("update", req.Update)
+	values.Set("bank_code", req.BankCode)
+	values.Set("va_expired", req.VaExpired)
+	values.Set("signature", req.Signature)
 	return
 }
 
@@ -51,11 +51,11 @@ type InquiryRequest struct {
 type PaymentNotificationRequest struct {
 	RequestUUID                string `json:"rq_uuid" valid:"required"`
 	RequestDateTime            string `json:"rq_datetime" valid:"required"`
-	Password                   string `json:"password"`
-	Signature                  string `json:"signature" valid:"required"`
-	MemberId                   string `json:"member_id"`
+	Password                   string `json:"Password"`
+	Signature                  string `json:"Signature" valid:"required"`
+	MemberID                   string `json:"member_id"`
 	MerchantCode               string `json:"comm_code" valid:"required"`
-	OrderId                    string `json:"order_id" valid:"required"`
+	OrderID                    string `json:"order_id" valid:"required"`
 	Ccy                        string `json:"ccy" valid:"required"`
 	Amount                     string `json:"amount" valid:"required"`
 	DebitFromBank              string `json:"debit_from_bank" valid:"required"`
@@ -71,4 +71,3 @@ type PaymentNotificationRequest struct {
 	ApprovalCodeFullBca        string `json:"approval_code_full_bca"`
 	ApprovalCodeInstallmentBca string `json:"approval_code_installment_bca"`
 }
-
