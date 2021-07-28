@@ -1,4 +1,4 @@
-package sangu_espay
+package espay
 
 import (
 	"context"
