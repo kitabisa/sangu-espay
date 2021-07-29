@@ -51,7 +51,7 @@ type InquiryRequest struct {
 type PaymentNotificationRequest struct {
 	RequestUUID                string `json:"rq_uuid" schema:"rq_uuid" valid:"required"`
 	RequestDateTime            string `json:"rq_datetime" schema:"rq_datetime" valid:"required"`
-	Password                   string `json:"password" schema:"signature"`
+	Password                   string `json:"password" schema:"password"`
 	Signature                  string `json:"signature" schema:"signature" valid:"required"`
 	MemberID                   string `json:"member_id" schema:"member_id"`
 	MerchantCode               string `json:"comm_code" schema:"comm_code" valid:"required"`
