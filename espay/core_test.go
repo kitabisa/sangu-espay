@@ -1,4 +1,4 @@
-package sangu_espay
+package espay
 
 import (
 	"reflect"
@@ -7,7 +7,7 @@ import (
 
 func TestCoreGateway_CreateVA(t *testing.T) {
 	type fields struct {
-		Client Client
+		Client EspayClient
 	}
 	type args struct {
 		req CreateVaRequest
@@ -22,7 +22,7 @@ func TestCoreGateway_CreateVA(t *testing.T) {
 		{
 			name:    "Test invalid url",
 			fields:  fields{
-				Client: Client{
+				Client: EspayClient{
 					BaseUrl:      "https://espay",
 					SignatureKey: "",
 					Timeout:      0,
@@ -38,9 +38,7 @@ func TestCoreGateway_CreateVA(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gateway := &CoreGateway{
-				Client: tt.fields.Client,
-			}
+			gateway := tt.fields.Client
 			gotRes, err := gateway.CreateVA(tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("CreateVA() error = %v, wantErr %v", err, tt.wantErr)

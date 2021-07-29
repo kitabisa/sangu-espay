@@ -1,20 +1,11 @@
-package sangu_espay
+package espay
 
-import "net/url"
-
-type CreateVaResponse struct {
-	RequestUUID     string `json:"rq_uuid" valid:"required"`
-	RequestDateTime string `json:"rq_datetime" valid:"required"`
-	ErrorCode       string `json:"error_code" valid:"required"`
-	ErrorMessage    string `json:"error_message" valid:"required"`
-	VaNumber        string `json:"va_number"`
-	Expired         string `json:"expired"`
-	Description     string `json:"desc"`
-	TotalAmount     string `json:"total_amt"`
-	BankCode        string `json:"bank_code"`
-	Amount          string `json:"amount"`
-	Fee             string `json:"fee"`
-}
+import (
+	"crypto/sha256"
+	"fmt"
+	"net/url"
+	"strings"
+)
 
 // createInquiryResponseBody Modify InquiryResponse when  you change this struct
 func createInquiryResponseBody(req InquiryResponse) (values url.Values) {
@@ -61,17 +52,6 @@ type InquiryResponse struct {
 	ShippingAddress   ShippingAddress
 }
 
-type PaymentNotificationResponse struct {
-	RequestUUID       string `json:"rq_uuid" valid:"required"`
-	ResponseDateTime  string `json:"rs_datetime" valid:"required"`
-	ErrorCode         string `json:"error_code"`
-	ErrorMessage      string `json:"error_message" valid:"required"`
-	Signature         string `json:"signature"`
-	OrderId           string `json:"order_id"`
-	ReconcileID       string `json:"reconcile_id" valid:"required"`
-	ReconcileDateTime string `json:"reconcile_datetime" valid:"required"`
-}
-
 type CustomerDetails struct {
 	FirstName string `json:"firstname" valid:"required"`
 	LastName  string `json:"lastname"`
@@ -87,4 +67,12 @@ type ShippingAddress struct {
 	PostalCode  string `json:"postal_code" valid:"required"`
 	Phone       string `json:"phone_number" valid:"required"`
 	CountryCode string `json:"country_code"  valid:"required"`
+}
+
+
+func (vaRequest InquiryResponse) CreateSignature(signatureKey string) string{
+	signature := "##" + signatureKey + "##" + vaRequest.RequestUUID
+	signatureUpperCase := strings.ToUpper(signature)
+	hash := sha256.Sum256([]byte(signatureUpperCase))
+	return fmt.Sprintf("%x", hash[:])
 }

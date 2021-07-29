@@ -1,9 +1,10 @@
-package sangu_espay
+package espay
 
 import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gojektech/heimdall"
@@ -11,7 +12,7 @@ import (
 	"moul.io/http2curl"
 )
 
-type Client struct {
+type EspayClient struct {
 	BaseUrl      string
 	SignatureKey string
 	Timeout      time.Duration
@@ -19,8 +20,31 @@ type Client struct {
 	IsProduction bool
 }
 
+// IEspay contains interface(s) that you have to implement. Mainly a representation of espay endpoints that kitabisa will send the request to
+type IEspayClient interface {
+	CreateVA(req CreateVaRequest) (res CreateVaResponse, err error)
+}
+
+// Call : base method to call Espay
+func (c *EspayClient) Call(method, path string, header map[string]string, body io.Reader) ([]byte, error) {
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+
+	path = c.BaseUrl + path
+	req, err := c.NewRequest(method, path, header, body)
+
+	if err != nil {
+		c.Logger.Info("Failed during NewRequest %v", err)
+		return nil, err
+	}
+
+	return c.ExecuteRequest(req)
+}
+
+
 // NewClient : this function will always be called when the library is in use
-func NewClient(isProd bool) Client {
+func NewClient(espayClient EspayClient) IEspayClient {
 
 	logOption := LogOption{
 		Format:          "text",
@@ -29,19 +53,16 @@ func NewClient(isProd bool) Client {
 		CallerToggle:    false,
 	}
 
-	if isProd {
+	if espayClient.IsProduction {
 		logOption.Pretty = false
 	} else {
 		logOption.Pretty = true
 	}
 
-	logger := NewLogger(logOption)
+	espayClient.Logger = *NewLogger(logOption)
+	espayClient.Timeout = 1 * time.Minute
+	return &espayClient
 
-	return Client{
-		Timeout:      1 * time.Minute,
-		Logger:       *logger,
-		IsProduction: isProd,
-	}
 }
 
 // ===================== HTTP CLIENT ================================================
@@ -50,7 +71,7 @@ var defHTTPMaxJitterInterval = 5 * time.Millisecond
 var defHTTPRetryCount = 3
 
 // getHTTPClient will get heimdall http client
-func (c *Client) getHTTPClient() *httpclient.Client {
+func (c *EspayClient) getHTTPClient() *httpclient.Client {
 	backoff := heimdall.NewConstantBackoff(defHTTPBackoffInterval, defHTTPMaxJitterInterval)
 	retrier := heimdall.NewRetrier(backoff)
 
@@ -62,7 +83,7 @@ func (c *Client) getHTTPClient() *httpclient.Client {
 }
 
 // NewRequest : send new request
-func (c *Client) NewRequest(method string, fullPath string, headers map[string]string, body io.Reader) (*http.Request, error) {
+func (c *EspayClient) NewRequest(method string, fullPath string, headers map[string]string, body io.Reader) (*http.Request, error) {
 	log := c.Logger
 
 	req, err := http.NewRequest(method, fullPath, body)
@@ -81,7 +102,7 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 }
 
 // ExecuteRequest : execute request
-func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
+func (c *EspayClient) ExecuteRequest(req *http.Request) ([]byte, error) {
 
 	command, _ := http2curl.GetCurlCommand(req)
 	start := time.Now()
@@ -110,15 +131,5 @@ func (c *Client) ExecuteRequest(req *http.Request) ([]byte, error) {
 	return resBody, err
 }
 
-func (c *Client) Call(method, path string, header map[string]string, body io.Reader) ([]byte, error) {
-	req, err := c.NewRequest(method, path, header, body)
-
-	if err != nil {
-		c.Logger.Info("Failed during NewRequest %v", err)
-		return nil, err
-	}
-
-	return c.ExecuteRequest(req)
-}
 
 // ===================== END HTTP CLIENT ================================================
