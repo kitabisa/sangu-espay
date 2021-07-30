@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+type InquiryRequest struct {
+	RequestUUID     string `schema:"rq_uuid, required"`
+	RequestDateTime string `schema:"rq_datetime, required"`
+	MemberId        string `schema:"member_id"`
+	MerchantCode    string `schema:"comm_code, required"`
+	OrderId         string `schema:"order_id, required"`
+	Password        string `schema:"password"`
+	Signature       string `schema:"signature, required"`
+}
+
 // createInquiryResponseBody Modify InquiryResponse when  you change this struct
 func createInquiryResponseBody(req InquiryResponse) (values url.Values) {
 	values = url.Values{}
