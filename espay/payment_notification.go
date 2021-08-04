@@ -3,12 +3,8 @@ package espay
 import (
 	"crypto/sha256"
 	"fmt"
+	"log"
 	"strings"
-)
-
-const (
-	SIGNATURE_MODE_PAYMENT_NOTIFICATION_REQUEST  = "PAYMENTREPORT"
-	SIGNATURE_MODE_PAYMENT_NOTIFICATION_RESPONSE = "PAYMENTREPORT-RS"
 )
 
 type PaymentNotificationRequest struct {
@@ -60,16 +56,25 @@ type PaymentNotificationResponse struct {
 	ReconcileDateTime string `json:"reconcile_datetime" valid:"required"`
 }
 
+const (
+	SignatureModePaymentNotificationRequest  = "PAYMENTREPORT"
+	SignatureModePaymentNotificationResponse = "PAYMENTREPORT-RS"
+)
+
 func (request PaymentNotificationRequest) CreateSignature(signatureKey string) string {
-	signature := "##" + signatureKey + "##" + request.RequestDateTime + "##" + request.OrderID + "##" + SIGNATURE_MODE_PAYMENT_NOTIFICATION_REQUEST + "##"
+	signature := "##" + signatureKey + "##" + request.RequestDateTime + "##" + request.OrderID + "##" + SignatureModePaymentNotificationRequest + "##"
 	signatureUpperCase := strings.ToUpper(signature)
+
+	log.Println("PaymentNotificationRequest Signature Format", signatureUpperCase)
 	hash := sha256.Sum256([]byte(signatureUpperCase))
 	return fmt.Sprintf("%x", hash[:])
 }
 
 func (request PaymentNotificationResponse) CreateSignature(signatureKey string) string {
-	signature := "##" + signatureKey + "##" + request.RequestUUID + "##" + request.ResponseDateTime + "##" + request.ErrorCode + "##" + SIGNATURE_MODE_PAYMENT_NOTIFICATION_RESPONSE + "##"
+	signature := "##" + signatureKey + "##" + request.RequestUUID + "##" + request.ResponseDateTime + "##" + request.ErrorCode + "##" + SignatureModePaymentNotificationResponse + "##"
 	signatureUpperCase := strings.ToUpper(signature)
+
+	log.Println("PaymentNotificationResponse Signature Format", signatureUpperCase)
 	hash := sha256.Sum256([]byte(signatureUpperCase))
 	return fmt.Sprintf("%x", hash[:])
 }
