@@ -17,10 +17,9 @@ type InquiryRequest struct {
 	Signature       string `json:"signature" valid:"required"`
 }
 
-// InquiryResponse Modify createInquiryResponseBody when  you change this struct
 type InquiryResponse struct {
 	RequestUUID       string `json:"rq_uuid" valid:"required"`
-	RequestDateTime   string `json:"rq_datetime" valid:"required"`
+	ResponseDateTime   string `json:"rs_datetime" valid:"required"`
 	ErrorCode         string `json:"error_code" valid:"required"`
 	ErrorMessage      string `json:"error_message" valid:"required"`
 	Signature         string `json:"signature" valid:"required"`
@@ -55,7 +54,7 @@ const SignatureModeInquiryTransactionRequest = "INQUIRY"
 const SignatureModeInquiryTransactionResponse = "INQUIRY-RS"
 
 func (inquiryResp InquiryResponse) CreateSignature(signatureKey string) string{
-	signature := "##" + signatureKey + "##" + inquiryResp.RequestUUID + "##" + inquiryResp.RequestDateTime + "##" +
+	signature := "##" + signatureKey + "##" + inquiryResp.RequestUUID + "##" + inquiryResp.ResponseDateTime + "##" +
 		inquiryResp.OrderId + "##" + inquiryResp.ErrorCode + "##" + SignatureModeInquiryTransactionResponse + "##"
 	signatureUpperCase := strings.ToUpper(signature)
 

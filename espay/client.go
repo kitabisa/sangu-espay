@@ -20,7 +20,7 @@ type EspayClient struct {
 	IsProduction bool
 }
 
-// IEspay contains interface(s) that you have to implement. Mainly a representation of espay endpoints that kitabisa will send the request to
+// IEspayClient contains interface(s) that you have to implement. Mainly a representation of espay endpoints that kitabisa will send the request to
 type IEspayClient interface {
 	CreateVA(req CreateVaRequest) (res CreateVaResponse, err error)
 }
@@ -42,10 +42,8 @@ func (c *EspayClient) Call(method, path string, header map[string]string, body i
 	return c.ExecuteRequest(req)
 }
 
-
 // NewClient : this function will always be called when the library is in use
 func NewClient(espayClient EspayClient) IEspayClient {
-
 	logOption := LogOption{
 		Format:          "text",
 		Level:           "info",
@@ -62,7 +60,6 @@ func NewClient(espayClient EspayClient) IEspayClient {
 	espayClient.Logger = *NewLogger(logOption)
 	espayClient.Timeout = 1 * time.Minute
 	return &espayClient
-
 }
 
 // ===================== HTTP CLIENT ================================================
@@ -130,6 +127,5 @@ func (c *EspayClient) ExecuteRequest(req *http.Request) ([]byte, error) {
 
 	return resBody, err
 }
-
 
 // ===================== END HTTP CLIENT ================================================
