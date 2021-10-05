@@ -103,7 +103,7 @@ func (c *EspayClient) ExecuteRequest(req *http.Request) ([]byte, error) {
 
 	command, _ := http2curl.GetCurlCommand(req)
 	start := time.Now()
-	c.Logger.Info("Start requesting: %s ", req.RequestURI)
+	c.Logger.Info("Start requesting: %v ", req.URL)
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
 		c.Logger.Error("Request failed. Error : %v , Curl Request : %v", err, command)
