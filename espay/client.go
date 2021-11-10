@@ -106,13 +106,11 @@ func (c *EspayClient) ExecuteRequest(req *http.Request) ([]byte, error) {
 	c.Logger.Info("Start requesting: %v ", req.URL)
 	res, err := c.getHTTPClient().Do(req)
 	if err != nil {
-		c.Logger.Error("Request failed. Error : %v , Curl Request : %v", err, command)
+		c.Logger.Error("Request failed. HTTP Status Code : %d | Error : %v , Curl Request : %v", res.StatusCode, err, command)
 		return nil, err
 	}
 
-	if !c.IsProduction {
-		c.Logger.Info("Curl Request: %v ", command)
-	}
+	c.Logger.Info("Curl Request: ", command)
 
 	defer res.Body.Close()
 	c.Logger.Info("Completed in %v", time.Since(start))
